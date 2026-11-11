@@ -253,6 +253,8 @@ async function startCamera(){
   if(s.width&&s.height)$("#cam").style.aspectRatio=(s.width/s.height).toFixed(4);
 }
 function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}}
+let detPromise=null;
+function ensureDetector(){if(!detPromise){detPromise=loadDetector().then(()=>{const n=$("#camNote");if(n)n.textContent=detector?"Detector de encuadre listo ✓. Nada se sube a internet: todo se revisa en este aparato.":"No cargó el detector de encuadre: se revisarán solo luz y estabilidad.";});}return detPromise;}
 async function loadDetector(){
   try{
     const m=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs");
@@ -364,7 +366,7 @@ $("#go").addEventListener("click",async()=>{
   if(!plan)return;
   $("#vStart").hidden=true;$("#vShoot").hidden=false;setStatus("Prendiendo la cámara…");
   try{await startCamera();}catch(e){setStatus("No pude abrir la cámara: revisa el permiso del navegador");return;}
-  if(!detector){setStatus("Cargando el detector de encuadre…");await loadDetector();}
+  if(!detector){setStatus("Terminando de cargar el detector de encuadre…");await ensureDetector();}
   showTake(Object.keys(aprobadas).length&&!aprobadas[0]?0:firstPending());cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
 });
 function firstPending(){const i=plan.tomas.findIndex((_,k)=>!aprobadas[k]);return i<0?0:i;}
@@ -388,6 +390,7 @@ $("#bCopy").addEventListener("click",async()=>{try{await navigator.clipboard.wri
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),2200);}
 
 loadPlan();
+setTimeout(ensureDetector,300);
 </script>
 </body>
 </html>
