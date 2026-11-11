@@ -198,7 +198,8 @@ textarea{width:100%;min-height:140px;background:var(--panel-2);color:var(--ink);
     </div>
     <div class="acts" id="acts"></div>
     <div class="row" style="margin-top:12px">
-      <button class="btn main" id="bSave" hidden>💾 Guardar las tomas en el celular</button>
+      <button class="btn main" id="bSave" hidden>💾 Guardar las tomas para editar</button>
+      <p class="sub" id="saveHint" style="margin-top:8px">En el iPhone elige <b>«Guardar en Archivos» → iCloud Drive › Rodaje</b> (no «Guardar videos»: Fotos les borra el nombre). Así llegan solas a la laptop y Claude las edita.</p>
       <button class="btn main" id="bCopy">📋 Copiar la lista para el editor</button>
       <button class="btn" id="bBack">Volver a las tomas</button>
     </div>
@@ -219,7 +220,10 @@ let stream=null, detector=null, raf=0, lastT=0, prevGray=null, okSince=0, phase=
 
 /* ---------- plan ---------- */
 function slug(s){return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,28);}
-function fileName(i){const t=plan.tomas[i];return String(i+1).padStart(2,"0")+"-"+t.acto+"-"+slug(t.lugar||t.accion);}
+// 11 nov 2026: el nombre lleva plan y fecha (gnp-estreno__2026-11-12__01-problema-escritorio) porque las tomas
+// de varios planes caen en la misma carpeta de iCloud y Claude las reparte por plan para editarlas.
+const HOY=new Date().toLocaleDateString("en-CA");
+function fileName(i){const t=plan.tomas[i];return (plan._key||"plan")+"__"+HOY+"__"+String(i+1).padStart(2,"0")+"-"+t.acto+"-"+slug(t.lugar||t.accion);}
 function validate(p){if(!p||!Array.isArray(p.tomas)||!p.tomas.length)throw new Error("El plan no trae tomas.");p.tomas.forEach((t,i)=>{if(!ACTOS.includes(t.acto))throw new Error("Toma "+(i+1)+": el acto debe ser problema, esfuerzo o logro.");t.encuadre=t.encuadre||"medio";t.dur=+t.dur||5;
   // Ritmo natural a cámara ≈ 2.1 palabras/s + 2 s para arrancar tras «Acción» y respirar al final.
   // (11 nov 2026: G01 pedía 24 palabras en 9 s y Dalí sentía que iba muy rápido.)
@@ -466,7 +470,8 @@ function showEnd(){
 }
 $("#bSave").addEventListener("click",async()=>{
   const ids=Object.keys(clips).map(Number).sort((a,b)=>a-b), files=ids.map(clipFile);
-  // Hoja de compartir del sistema: en iPhone ofrece «Guardar N videos» directo a Fotos.
+  // Hoja de compartir del sistema. En iPhone se elige «Guardar en Archivos» → iCloud Drive › Rodaje, que conserva
+  // el nombre y se sincroniza con la Mac (11 nov 2026; «Guardar videos» a Fotos los renombra IMG_xxxx).
   // En laptop la hoja de compartir no ofrece "guardar archivo" (11 nov 2026, las tomas se quedaron en la pestaña): ahí se descarga directo.
   const movil=/iPhone|iPad|Android/i.test(navigator.userAgent)||navigator.maxTouchPoints>1;
   if(movil&&navigator.canShare&&navigator.canShare({files})){try{await navigator.share({files,title:plan.titulo||"Tomas"});toast("Listo");}catch(e){if(e.name!=="AbortError")toast("No se pudo compartir: "+e.message);}return;}
