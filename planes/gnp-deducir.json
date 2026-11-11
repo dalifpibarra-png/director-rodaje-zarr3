@@ -1,0 +1,9 @@
+{"titulo": "GNP · Deduce tus gastos médicos en 3 pasos",
+ "nota": "Jue 12 nov, después del estreno, misma camisa y mismo lugar. Ten a la mano una factura impresa (o en el celular) y tu tarjeta. Las cifras y reglas se revisan contra marco-legal.md antes de publicar.",
+ "tomas": [
+  {"acto": "problema", "lugar": "Escritorio", "accion": "Levanta una factura y mírala con cara de duda.", "dice": "Pagaste doctor, hospital o tu seguro de gastos médicos… y no lo deduces.", "encuadre": "medio", "aire": [8, 18], "luz": "frente", "dur": 7, "sentir": "Intrigado", "tip": "La factura a la altura del pecho, que se vea."},
+  {"acto": "esfuerzo", "lugar": "Escritorio", "accion": "Levanta un dedo.", "dice": "Paso uno: pide factura a tu RFC de cada consulta, del hospital y de tu seguro.", "encuadre": "medio", "aire": [8, 18], "luz": "frente", "dur": 7, "sentir": "Claro", "tip": "Deja espacio arriba: ahí va «Paso uno» gigante."},
+  {"acto": "esfuerzo", "lugar": "Escritorio", "accion": "Levanta dos dedos y luego enseña la tarjeta.", "dice": "Paso dos: paga con tarjeta o transferencia. En efectivo no cuenta.", "encuadre": "medio", "aire": [8, 18], "luz": "frente", "dur": 7, "sentir": "Firme", "tip": "Mismo encuadre que la toma anterior."},
+  {"acto": "esfuerzo", "lugar": "Escritorio", "accion": "Levanta tres dedos.", "dice": "Paso tres: en tu declaración de abril, revisa que aparezcan en tus deducciones personales.", "encuadre": "medio", "aire": [8, 18], "luz": "frente", "dur": 8, "sentir": "Seguro", "tip": "Mismo encuadre."},
+  {"acto": "logro", "lugar": "Escritorio", "accion": "Sonríe a la lente.", "dice": "Comenta SAT y te mando la guía completa.", "encuadre": "cerrado", "aire": [5, 14], "luz": "frente", "dur": 6, "sentir": "Amable", "tip": "Sostén la sonrisa 2 segundos al final."}
+ ]}

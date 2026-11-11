@@ -1,0 +1,12 @@
+{"titulo": "Kauri · «Kauri, tengo que decirte algo…»",
+ "nota": "Jue 12 nov, cuarto. Playera blanca casual. Sentado en la cama o en una silla, luz de ventana de frente. Tú eres el huésped que le confiesa a la casa que vio un hotel; la casa contesta en el video con tomas reales de la alberca. Actúa: exagera un poco las caras.",
+ "tomas": [
+  {"acto": "problema", "lugar": "Cuarto", "accion": "Juega con tus manos, nervioso, y mira a la lente.", "dice": "Kauri… tengo que decirte algo.", "encuadre": "medio", "aire": [8, 18], "luz": "frente", "dur": 5, "sentir": "Culpable", "tip": "Pausa antes de «tengo que decirte algo»."},
+  {"acto": "problema", "lugar": "Cuarto", "accion": "Mira hacia abajo, apenado.", "dice": "Vi un hotel en Guayabitos.", "encuadre": "cerrado", "aire": [5, 14], "luz": "frente", "dur": 4, "sentir": "Apenado", "tip": "Más cerca que la anterior."},
+  {"acto": "problema", "lugar": "Cuarto", "accion": "Levanta las manos, como defendiéndote.", "dice": "Ayer. Solo una vez.", "encuadre": "medio", "aire": [8, 18], "luz": "frente", "dur": 4, "sentir": "Defensivo", "tip": "Rápido, como excusa."},
+  {"acto": "esfuerzo", "lugar": "Cuarto", "accion": "Sin hablar: cara de «me cacharon», abres los ojos y escondes el celular.", "encuadre": "cerrado", "aire": [5, 14], "luz": "frente", "dur": 4, "sentir": "Descubierto", "tip": "Aquí la casa te dice: «Tienes 40 fotos de mi alberca guardadas»."},
+  {"acto": "esfuerzo", "lugar": "Cuarto", "accion": "Encoge los hombros.", "dice": "Es que tenía servicio a cuartos…", "encuadre": "medio", "aire": [8, 18], "luz": "frente", "dur": 4, "sentir": "Excusa floja", "tip": "Mira a un lado al final."},
+  {"acto": "esfuerzo", "lugar": "Cuarto", "accion": "Sin hablar: te quedas callado y asientes despacio, convencido.", "encuadre": "cerrado", "aire": [5, 14], "luz": "frente", "dur": 4, "sentir": "Convencido", "tip": "Aquí la casa dice: «Tengo cocina… y la playa a 750 metros caminando»."},
+  {"acto": "logro", "lugar": "Cuarto", "accion": "Junta las manos, como pidiendo perdón.", "dice": "¿Me perdonas?", "encuadre": "medio", "aire": [8, 18], "luz": "frente", "dur": 4, "sentir": "Tierno", "tip": "Ojos de perrito."},
+  {"acto": "logro", "lugar": "Cuarto", "accion": "Enseña el celular a la lente y sonríe.", "dice": "Esa pestaña es para reservar enero. Contigo.", "encuadre": "medio", "aire": [8, 18], "luz": "frente", "dur": 5, "sentir": "Enamorado", "tip": "Es el giro: dilo despacio y sostén la sonrisa."}
+ ]}

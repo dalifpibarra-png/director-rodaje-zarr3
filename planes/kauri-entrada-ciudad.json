@@ -1,0 +1,9 @@
+{"titulo": "Kauri · La entrada (parte ciudad)",
+ "nota": "Jue 12 nov, 17:00–17:45, calle o parque con piso bonito y sol bajo (el sol se mete ~18:05). Camisa de lino o playera blanca, pantalón o short claro, lentes de sol (unos que puedas aventar), tenis blancos o sandalias. Lleva el celular 2 con un video de Kauri en pantalla. La toma de los lentes grábala con la cámara del iPhone en CÁMARA LENTA (la app no graba a 60 cps); las demás, con la app. Pide a alguien que sostenga el celular.",
+ "tomas": [
+  {"acto": "problema", "lugar": "Calle con sol bajo", "accion": "Camina hacia la cámara; solo se ven tus pies.", "encuadre": "manos", "luz": "frente", "dur": 4, "sentir": "Decidido", "tip": "Celular a la altura de la rodilla, quien graba camina hacia atrás."},
+  {"acto": "problema", "lugar": "Calle", "accion": "Camina; se ve tu torso y la mano con el celular.", "encuadre": "abierto", "luz": "frente", "dur": 4, "sentir": "Con prisa", "tip": "El sol de frente o de lado, nunca detrás de ti."},
+  {"acto": "esfuerzo", "lugar": "Calle", "accion": "Te detienes, te quitas los lentes y los avientas hacia la lente.", "encuadre": "medio", "aire": [8, 18], "luz": "frente", "dur": 4, "sentir": "Ya me voy de vacaciones", "tip": "CÁMARA LENTA del iPhone. Avienta suave, que lleguen a tapar la lente."},
+  {"acto": "esfuerzo", "lugar": "Calle", "accion": "Acerca el celular con el video de Kauri hasta tapar la lente.", "encuadre": "cerrado", "aire": [5, 14], "luz": "frente", "dur": 4, "sentir": "Mira esto", "tip": "Brillo del celular al máximo. Aquí entra la casa."},
+  {"acto": "logro", "lugar": "Calle", "accion": "Sonríe a la lente y tápala con la mano abierta.", "encuadre": "medio", "aire": [8, 18], "luz": "frente", "dur": 4, "sentir": "Feliz", "tip": "La mano llega rápido y tapa todo: ahí va el corte a la alberca."}
+ ]}

@@ -1,0 +1,7 @@
+{"titulo": "Artesanías · Estreno: cortar el estambre",
+ "nota": "Jue 12 nov, solo si tienes una pieza aquí (pulsera, cráneo o botella). Mesa junto a la ventana, celular cenital (de arriba hacia abajo) y fijo. Lleva papel kraft, estambre de color, tijera y un plumón negro. Ropa negra lisa: solo salen tus manos. Si no tienes pieza, no la grabes: la armo yo con una foto.",
+ "tomas": [
+  {"acto": "problema", "lugar": "Mesa, vista desde arriba", "accion": "Escribe el nombre de la cuenta en el papel kraft con plumón.", "encuadre": "manos", "luz": "lado", "dur": 5, "sentir": "Ceremonia", "tip": "Letra grande, que se lea en el celular."},
+  {"acto": "esfuerzo", "lugar": "Mesa, desde arriba", "accion": "Envuelve la pieza con el papel y amárrala con el estambre.", "encuadre": "manos", "luz": "lado", "dur": 6, "sentir": "Cuidado", "tip": "Esta toma es para el «antes»; no se publica completa."},
+  {"acto": "logro", "lugar": "Mesa, desde arriba", "accion": "Corta el estambre con la tijera en una sola toma, abre el papel y deja la pieza al centro.", "encuadre": "manos", "luz": "lado", "dur": 8, "sentir": "Revelación", "tip": "Sin cortes. Silencio en el cuarto: el sonido de la tijera es el efecto."}
+ ]}
