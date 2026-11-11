@@ -212,7 +212,7 @@ const ENC={cerrado:[0.28,0.62,"Cerrado: la cara llena un tercio"],medio:[0.12,0.
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 // iPad moderno se presenta como Mac: se reconoce por la pantalla táctil.
 const MOVIL=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Mac/i.test(navigator.platform));
-let plan=null, idx=0, aprobadas={}, opts={cam:"user",mode:MOVIL?"grabar":"revisar",voz:true}, clips={}, wake=null;
+let plan=null, idx=0, aprobadas={}, opts={cam:"user",mode:"grabar",voz:true}, clips={}, wake=null;
 let stream=null, detector=null, raf=0, lastT=0, prevGray=null, okSince=0, phase="ajustando", rec=null, chunks=[], recStart=0, lostSince=0, lastSpoken="", lastSpokeAt=0;
 
 /* ---------- plan ---------- */
