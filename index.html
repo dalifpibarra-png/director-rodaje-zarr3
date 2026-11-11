@@ -422,7 +422,9 @@ function showEnd(){
 $("#bSave").addEventListener("click",async()=>{
   const ids=Object.keys(clips).map(Number).sort((a,b)=>a-b), files=ids.map(clipFile);
   // Hoja de compartir del sistema: en iPhone ofrece «Guardar N videos» directo a Fotos.
-  if(navigator.canShare&&navigator.canShare({files})){try{await navigator.share({files,title:plan.titulo||"Tomas"});toast("Listo");}catch(e){if(e.name!=="AbortError")toast("No se pudo compartir: "+e.message);}return;}
+  // En laptop la hoja de compartir no ofrece "guardar archivo" (11 nov 2026, las tomas se quedaron en la pestaña): ahí se descarga directo.
+  const movil=/iPhone|iPad|Android/i.test(navigator.userAgent)||navigator.maxTouchPoints>1;
+  if(movil&&navigator.canShare&&navigator.canShare({files})){try{await navigator.share({files,title:plan.titulo||"Tomas"});toast("Listo");}catch(e){if(e.name!=="AbortError")toast("No se pudo compartir: "+e.message);}return;}
   ids.forEach((i,k)=>setTimeout(()=>downloadClip(i),k*600));toast("Descargando "+ids.length+" tomas");
 });
 $("#bCopy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(summaryText());toast("Lista copiada");}catch(e){toast("No se pudo copiar");}});
