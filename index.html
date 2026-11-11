@@ -86,7 +86,7 @@ textarea{width:100%;min-height:140px;background:var(--panel-2);color:var(--ink);
   .side .row .btn{min-height:54px;padding:0 10px;font-size:.95rem}
   .slate{order:2} .checks{order:3} .side .row{order:1}
 }
-.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px} #cSnd{grid-column:1/-1}
 .check{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
 .check b{display:flex;justify-content:space-between;font-family:var(--f-d);text-transform:uppercase;letter-spacing:.05em;font-size:.85rem;color:var(--ink-2)}
 .check b span{font-family:var(--f-b)}
@@ -178,6 +178,7 @@ textarea{width:100%;min-height:140px;background:var(--panel-2);color:var(--ink);
         <div class="check" id="cAire"><b>Aire arriba <span>·</span></b><p>…</p></div>
         <div class="check" id="cLuz"><b>Luz <span>·</span></b><p>…</p></div>
         <div class="check" id="cEst"><b>Estabilidad <span>·</span></b><p>…</p></div>
+        <div class="check" id="cSnd"><b>Sonido <span>·</span></b><p>…</p></div>
       </div>
       <div class="row">
         <button class="btn" id="bPrev">← Anterior</button>
@@ -212,13 +213,17 @@ const ENC={cerrado:[0.28,0.62,"Cerrado: la cara llena un tercio"],medio:[0.12,0.
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 // iPad moderno se presenta como Mac: se reconoce por la pantalla táctil.
 const MOVIL=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Mac/i.test(navigator.platform));
+let sonidos={};
 let plan=null, idx=0, aprobadas={}, opts={cam:"user",mode:"grabar",voz:true}, clips={}, wake=null;
 let stream=null, detector=null, raf=0, lastT=0, prevGray=null, okSince=0, phase="ajustando", rec=null, chunks=[], recStart=0, lostSince=0, lastSpoken="", lastSpokeAt=0;
 
 /* ---------- plan ---------- */
 function slug(s){return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,28);}
 function fileName(i){const t=plan.tomas[i];return String(i+1).padStart(2,"0")+"-"+t.acto+"-"+slug(t.lugar||t.accion);}
-function validate(p){if(!p||!Array.isArray(p.tomas)||!p.tomas.length)throw new Error("El plan no trae tomas.");p.tomas.forEach((t,i)=>{if(!ACTOS.includes(t.acto))throw new Error("Toma "+(i+1)+": el acto debe ser problema, esfuerzo o logro.");t.encuadre=t.encuadre||"medio";t.dur=+t.dur||5;});return p;}
+function validate(p){if(!p||!Array.isArray(p.tomas)||!p.tomas.length)throw new Error("El plan no trae tomas.");p.tomas.forEach((t,i)=>{if(!ACTOS.includes(t.acto))throw new Error("Toma "+(i+1)+": el acto debe ser problema, esfuerzo o logro.");t.encuadre=t.encuadre||"medio";t.dur=+t.dur||5;
+  // Ritmo natural a cámara ≈ 2.1 palabras/s + 2 s para arrancar tras «Acción» y respirar al final.
+  // (11 nov 2026: G01 pedía 24 palabras en 9 s y Dalí sentía que iba muy rápido.)
+  if(t.dice){const w=t.dice.trim().split(/\s+/).length;t.dur=Math.max(t.dur,Math.ceil(w/2.1+2));}});return p;}
 async function loadPlan(){
   const q=new URLSearchParams(location.search).get("p")||"ejemplo-gnp";
   try{const r=await fetch("planes/"+encodeURIComponent(q)+".json",{cache:"no-store"});if(!r.ok)throw new Error("No encontré el plan «"+q+"».");setPlan(validate(await r.json()),q);}
@@ -273,7 +278,29 @@ async function startCamera(){
   const w=v.videoWidth,h=v.videoHeight;
   if(w&&h)$("#cam").style.aspectRatio=(w/h).toFixed(4);
 }
-function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}}
+function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}an=null;}
+
+/* ---------- sonido ---------- */
+let actx=null, an=null, abuf=null, noiseDb=null, lastVoice=0, takeSnd=null;
+async function startAudio(){
+  an=null;if(!stream||!stream.getAudioTracks().length)return;
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();await actx.resume();
+    const src=actx.createMediaStreamSource(stream);an=actx.createAnalyser();an.fftSize=2048;src.connect(an);abuf=new Float32Array(an.fftSize);noiseDb=null;
+  }catch(e){an=null;console.warn("Sin medidor de sonido",e);}
+}
+function audioLevel(){ // dBFS del último bloque (rms) y pico
+  if(!an)return null;an.getFloatTimeDomainData(abuf);let s=0,pk=0;
+  for(let i=0;i<abuf.length;i++){const v=abuf[i];s+=v*v;const a=v<0?-v:v;if(a>pk)pk=a;}
+  return {db:20*Math.log10(Math.sqrt(s/abuf.length)+1e-9),pk};
+}
+function soundVerdict(s){
+  if(!s||!s.n)return {ok:true,off:true,msg:"Sin medidor de sonido"};
+  const voz=s.top, snr=voz-(noiseDb??-60);
+  if(s.clip>3)return {ok:false,msg:"Saturado: aleja un poco el micrófono o habla más bajo"};
+  if(voz<-34)return {ok:false,msg:"Se oye bajito: acércate al micrófono"};
+  if(snr<15)return {ok:false,msg:"Mucho ruido de fondo para tu voz: busca un rincón más callado"};
+  return {ok:true,msg:snr>25?"Sonido limpio ✓":"Sonido aceptable ✓"};
+}
 let detPromise=null;
 function ensureDetector(){if(!detPromise){detPromise=loadDetector().then(()=>{const n=$("#camNote");if(n)n.textContent=detector?"Detector de encuadre listo ✓. Nada se sube a internet: todo se revisa en este aparato.":"No cargó el detector de encuadre: se revisarán solo luz y estabilidad.";});}return detPromise;}
 async function loadDetector(){
@@ -331,8 +358,8 @@ function evaluate(a,t){
   return res;
 }
 function paintChecks(r){
-  const map={enc:"#cEnc",aire:"#cAire",luz:"#cLuz",est:"#cEst"};
-  for(const k in map){const el=$(map[k]),c=r[k];el.className="check "+(c.off?"off":c.ok?"ok":"bad");el.querySelector("span").textContent=c.off?"·":c.ok?"✓":"✗";el.querySelector("p").textContent=c.msg;}
+  const map={enc:"#cEnc",aire:"#cAire",luz:"#cLuz",est:"#cEst",snd:"#cSnd"};
+  for(const k in map){const el=$(map[k]),c=r[k];if(!el||!c)continue;el.className="check "+(c.off?"off":c.ok?"ok":"bad");el.querySelector("span").textContent=c.off?"·":c.ok?"✓":"✗";el.querySelector("p").textContent=c.msg;}
 }
 function drawOverlay(a,t){
   const c=$("#overlay"),x=c.getContext("2d");c.width=a.W;c.height=a.H;x.clearRect(0,0,a.W,a.H);
@@ -348,7 +375,19 @@ function loop(now){
   raf=requestAnimationFrame(loop);
   if(now-lastT<100)return;lastT=now;
   const t=plan.tomas[idx], a=analyze(now);if(!a)return;
-  const r=evaluate(a,t);paintChecks(r);drawOverlay(a,t);
+  const r=evaluate(a,t);
+  // Sonido: el fondo se mide mientras te acomodas (sin la voz de la app); la voz, durante la toma. No frena la toma: avisa.
+  const lv=audioLevel(), hablaApp="speechSynthesis" in window&&speechSynthesis.speaking;
+  if(!lv)r.snd={off:true,ok:true,msg:opts.mode==="grabar"?"Sin micrófono":"No aplica: grabas con otra cámara"};
+  else if(phase==="ajustando"){
+    if(!hablaApp)noiseDb=noiseDb==null?lv.db:0.92*noiseDb+0.08*lv.db;
+    r.snd=noiseDb==null?{ok:true,msg:"Midiendo el fondo…"}:noiseDb>-38?{ok:false,msg:"Mucho ruido de fondo: aléjate de la barra o de la calle"}:{ok:true,msg:"Fondo callado ✓"};
+  }else if(phase==="grabando"&&takeSnd){
+    if((now-recStart)>1200){takeSnd.n++;takeSnd.sm=takeSnd.sm==null?lv.db:0.7*takeSnd.sm+0.3*lv.db;takeSnd.top=Math.max(takeSnd.top,takeSnd.sm);if(lv.pk>0.99)takeSnd.clip++;}
+    if(lv.db>Math.max((noiseDb??-60)+10,-50))lastVoice=now;
+    r.snd={ok:true,msg:now-lastVoice<400?"🎙 Te oigo":"…"};
+  }else r.snd=takeSnd?soundVerdict(takeSnd):{ok:true,msg:"…"};
+  paintChecks(r);drawOverlay(a,t);
   const allOk=r.enc.ok&&r.aire.ok&&r.luz.ok&&r.est.ok;
   if(phase==="ajustando"){
     if(allOk){if(!okSince)okSince=now;const left=900-(now-okSince);setStatus("¡Así! No te muevas…","");if(left<=0)beginTake(now);}
@@ -357,11 +396,12 @@ function loop(now){
     const el=(now-recStart)/1000, rest=Math.max(0,Math.ceil(t.dur-el));
     $("#recT").textContent=el.toFixed(1)+" s";$("#count").hidden=rest>3||rest===0;$("#count").textContent=rest;
     if(t.encuadre!=="manos"&&detector&&!a.face){if(!lostSince)lostSince=now;if(now-lostSince>1200){cutTake("Te saliste de cuadro: repetimos");return;}}else lostSince=0;
-    if(el>=t.dur)finishTake();
+    // No corta a media frase: si se acabó el tiempo pero sigues hablando, espera 0.9 s de silencio (máximo 6 s extra).
+    if(el>=t.dur&&(!an||!t.dice||now-lastVoice>900||el>=t.dur+6))finishTake();
   }
 }
 function beginTake(now){
-  phase="grabando";recStart=now;lostSince=0;$("#recBadge").hidden=false;setStatus("● ACCIÓN · "+(plan.tomas[idx].sentir||""),"go");say("Acción",true);
+  phase="grabando";recStart=now;lostSince=0;lastVoice=now;takeSnd={n:0,top:-100,clip:0,sm:null};$("#recBadge").hidden=false;setStatus("● ACCIÓN · "+(plan.tomas[idx].sentir||""),"go");say("Acción",true);
   if(opts.mode==="grabar"&&stream&&window.MediaRecorder){
     const mt=["video/mp4","video/webm;codecs=vp9,opus","video/webm"].find(m=>MediaRecorder.isTypeSupported(m))||"";
     chunks=[];rec=new MediaRecorder(stream,mt?{mimeType:mt}:undefined);rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};rec.start(250);
@@ -371,7 +411,9 @@ function cutTake(msg){phase="ajustando";okSince=0;$("#recBadge").hidden=true;$("
 function finishTake(){
   phase="aprobada";$("#recBadge").hidden=true;$("#count").hidden=true;
   aprobadas[idx]=true;store.set("ok-"+plan._key,JSON.stringify(aprobadas));drawDots();
-  setStatus("✓ Toma aprobada · "+fileName(idx),"ok");say("Corte. Toma aprobada.",true);
+  const sv=soundVerdict(takeSnd);sonidos[idx]=sv.off?"":sv.msg;
+  setStatus("✓ Toma aprobada · "+(sv.off?fileName(idx):sv.msg),sv.ok?"ok":"");
+  say("Corte. Toma aprobada."+(sv.off?"":" "+sv.msg.replace(" ✓","")),true);
   if(rec){const r=rec,i=idx;rec=null;r.onstop=()=>{const blob=new Blob(chunks,{type:r.mimeType||"video/webm"});const ext=/mp4/.test(blob.type)?"mp4":"webm";
     clips[i]={blob,ext};
     // En el celular una descarga por toma abre una hoja nueva y corta el rodaje: se juntan y se guardan al final.
@@ -396,8 +438,11 @@ $("#go").addEventListener("click",async()=>{
   if(!plan)return;
   // iPhone solo deja hablar si la primera frase sale en el mismo toque; después de esperar la cámara ya no.
   if(opts.voz&&"speechSynthesis" in window){const u=new SpeechSynthesisUtterance("Vamos");u.lang="es-MX";if(voz)u.voice=voz;speechSynthesis.speak(u);}
+  // El medidor de sonido también tiene que nacer dentro del toque (iOS).
+  if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
   $("#vStart").hidden=true;$("#vShoot").hidden=false;setStatus("Prendiendo la cámara…");keepAwake();
   try{await startCamera();}catch(e){setStatus("No pude abrir la cámara: revisa el permiso del navegador");return;}
+  await startAudio();
   if(!detector){setStatus("Terminando de cargar el detector de encuadre…");await ensureDetector();}
   showTake(Object.keys(aprobadas).length&&!aprobadas[0]?0:firstPending());cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
 });
@@ -410,7 +455,7 @@ $("#bEnd").addEventListener("click",showEnd);
 $("#bBack").addEventListener("click",()=>{$("#vEnd").hidden=true;$("#vShoot").hidden=false;showTake(firstPending());});
 
 /* ---------- resumen ---------- */
-function summaryText(){return plan.tomas.map((t,i)=>`${aprobadas[i]?"✓":"·"} ${fileName(i)} | ${NOMBRE[t.acto]} | ${t.accion}${t.dice?" | Dice: "+t.dice:""}`).join("\n");}
+function summaryText(){return plan.tomas.map((t,i)=>`${aprobadas[i]?"✓":"·"} ${fileName(i)} | ${NOMBRE[t.acto]} | ${t.accion}${t.dice?" | Dice: "+t.dice:""}${sonidos[i]?" | Sonido: "+sonidos[i]:""}`).join("\n");}
 function showEnd(){
   cancelAnimationFrame(raf);stopCamera();releaseAwake();if("speechSynthesis" in window)speechSynthesis.cancel();
   $("#vShoot").hidden=true;$("#vEnd").hidden=false;drawDots();
