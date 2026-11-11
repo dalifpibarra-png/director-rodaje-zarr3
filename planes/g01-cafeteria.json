@@ -1,0 +1,101 @@
+{
+  "titulo": "G01 · Mismo retiro: $318 mil o $407 mil (cafetería)",
+  "nota": "Sale el viernes 20 nov. Paralelo Café (uno de tus 3 lugares fijos), mesa junto a la ventana, sin logos de marcas ni gente reconocible al fondo; pide permiso y graba en hora tranquila (antes de las 11 o de 4 a 5). Camisa lisa azul marino o gris, sin logos. Celular trasero en tripié, vertical, HDR apagado. El café hace ruido: la voz con audífonos con micrófono o nota de voz aparte, nunca con el micrófono del celular a 1 m. Cifras: cotización real de un hombre de 33 años (jun 2026), se dicen como ejemplo.",
+  "tomas": [
+    {
+      "acto": "problema",
+      "lugar": "Mesa de Paralelo junto a la ventana",
+      "accion": "Mira a la lente, levanta dos dedos y pregunta como amigo.",
+      "dice": "Mismo retiro a los 65. Una opción cuesta 318 mil pesos y la otra 407 mil. ¿Cuál pagarías?",
+      "encuadre": "medio",
+      "aire": [
+        8,
+        18
+      ],
+      "luz": "frente",
+      "dur": 8,
+      "sentir": "Intrigado",
+      "tip": "Ventana de frente: la cara completa, sin sombras."
+    },
+    {
+      "acto": "problema",
+      "lugar": "Mesa",
+      "accion": "Encoge los hombros y sonríe de lado.",
+      "dice": "Casi todos eligen la de 407, porque al mes se siente más ligera.",
+      "encuadre": "cerrado",
+      "aire": [
+        5,
+        14
+      ],
+      "luz": "frente",
+      "dur": 6,
+      "sentir": "Cómplice",
+      "tip": "Más cerca: la cara llena un tercio."
+    },
+    {
+      "acto": "esfuerzo",
+      "lugar": "Mesa, sobre el hombro",
+      "accion": "Escribe en la libreta «5 años» y «10 años», junto a tu café. Sin hablar.",
+      "encuadre": "manos",
+      "luz": "lado",
+      "dur": 5,
+      "sentir": "Concentrado",
+      "tip": "Celular detrás de tu hombro; que se vea la pluma."
+    },
+    {
+      "acto": "esfuerzo",
+      "lugar": "Mesa",
+      "accion": "Cuenta con los dedos mientras lo dices.",
+      "dice": "Pagar en 5 años sale en 4,797 al mes. En 10 años, 2,698. Pero en total, la de 5 te ahorra 89 mil pesos.",
+      "encuadre": "medio",
+      "aire": [
+        8,
+        18
+      ],
+      "luz": "frente",
+      "dur": 9,
+      "sentir": "Explicando a un amigo",
+      "tip": "Las cifras se dicen lento; si te trabas, vuelve a empezar la frase."
+    },
+    {
+      "acto": "esfuerzo",
+      "lugar": "Mesa",
+      "accion": "Encierra en un círculo el «5 años» de la libreta. Sin hablar.",
+      "encuadre": "manos",
+      "luz": "lado",
+      "dur": 4,
+      "sentir": "Descubrimiento",
+      "tip": "Un solo movimiento, despacio."
+    },
+    {
+      "acto": "logro",
+      "lugar": "Mesa",
+      "accion": "Mira a la lente, serio y honesto.",
+      "dice": "Lo corto rinde más, si de verdad lo puedes sostener. Si tu flujo está apretado, lo largo es lo responsable.",
+      "encuadre": "medio",
+      "aire": [
+        8,
+        18
+      ],
+      "luz": "frente",
+      "dur": 8,
+      "sentir": "Honesto",
+      "tip": "Esta es la frase que da confianza: sin prisa."
+    },
+    {
+      "acto": "logro",
+      "lugar": "Mesa",
+      "accion": "Sonríe, cierra la libreta y da un trago al café.",
+      "dice": "Que nada te agarre en curva.",
+      "encuadre": "medio",
+      "aire": [
+        8,
+        18
+      ],
+      "luz": "frente",
+      "dur": 4,
+      "sentir": "Seguro",
+      "tip": "La firma, igual siempre. Sostén la sonrisa 1 segundo al final."
+    }
+  ]
+}

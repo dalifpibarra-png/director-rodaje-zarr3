@@ -1,0 +1,13 @@
+{
+  "titulo": "GNP · El error del Afore",
+  "nota": "Camisa lisa azul marino. Mesa junto a la ventana, 9 a 11 am, ventana de frente. Celular trasero, vertical, HDR apagado.",
+  "tomas": [
+    {"acto": "problema", "lugar": "Mesa junto a la ventana", "accion": "Lee el estado de cuenta del Afore, frunce el ceño y suelta un suspiro largo.", "encuadre": "medio", "aire": [8, 18], "luz": "lado", "dur": 6, "sentir": "Preocupado", "tip": "Una sola luz: la ventana a tu lado, no detrás."},
+    {"acto": "problema", "lugar": "Mesa", "accion": "Pásate la mano por la frente y mira a un lado, fuera de cuadro.", "encuadre": "cerrado", "aire": [5, 14], "luz": "lado", "dur": 5, "sentir": "Agobiado", "tip": "Más cerca: que la cara llene un tercio."},
+    {"acto": "esfuerzo", "lugar": "Mesa, sobre el hombro", "accion": "Escribe números en una libreta. Que se vean la pluma y tu mano.", "encuadre": "manos", "luz": "lado", "dur": 5, "sentir": "Concentrado", "tip": "El celular detrás de tu hombro; sin cara."},
+    {"acto": "esfuerzo", "lugar": "Mesa", "accion": "Haz cuentas en la calculadora del celular y subraya un número en la libreta.", "encuadre": "manos", "luz": "lado", "dur": 5, "sentir": "Encontrando la salida", "tip": "Toma cerrada de manos, sin movimiento brusco."},
+    {"acto": "esfuerzo", "lugar": "Mesa", "accion": "Levanta la vista de la libreta, como si te cayera el veinte.", "encuadre": "medio", "aire": [8, 18], "luz": "lado", "dur": 5, "sentir": "Descubrimiento", "tip": "Empieza mirando abajo y sube la mirada despacio."},
+    {"acto": "logro", "lugar": "Mesa", "accion": "Mira a la lente, sonríe y di: «Que nada te agarre en curva».", "encuadre": "medio", "aire": [8, 18], "luz": "lado", "dur": 6, "sentir": "Tranquilo, seguro", "tip": "Mira la lente, no la pantalla."},
+    {"acto": "logro", "lugar": "Mesa", "accion": "Cierra la libreta, recárgate en la silla y respira tranquilo.", "encuadre": "medio", "aire": [8, 18], "luz": "lado", "dur": 5, "sentir": "Resuelto", "tip": "Sostén la última pose 2 segundos."}
+  ]
+}

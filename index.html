@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Director de rodaje</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Concepto: claqueta de rodaje. Fondo de estudio oscuro, una sola luz ámbar (el foco rojo de
+   "grabando" se reserva para cuando la toma corre), y cada toma como una tarjeta de claqueta. */
+:root{
+  --bg:#0E0F13; --panel:#171920; --panel-2:#20232C; --line:#2C303B;
+  --ink:#F3F0E8; --ink-2:#B9B4A8; --ink-3:#8A8577;
+  --amber:#F2B544; --rec:#E5484D; --ok:#3DD68C; --warn:#F2B544;
+  --problema:#E5484D; --esfuerzo:#F2B544; --logro:#3DD68C;
+  --f-d:'Oswald',Impact,sans-serif; --f-b:'Atkinson Hyperlegible',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-b);font-size:18px;line-height:1.45;-webkit-font-smoothing:antialiased}
+body{padding:env(safe-area-inset-top,0) max(14px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0) max(14px,env(safe-area-inset-left,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;padding-block:14px 30px}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+header h1{margin:0;font-family:var(--f-d);font-weight:700;text-transform:uppercase;letter-spacing:.03em;font-size:1.3rem;flex:1;min-width:0}
+header h1 small{display:block;font-family:var(--f-b);font-weight:400;text-transform:none;letter-spacing:0;font-size:.82rem;color:var(--ink-3)}
+.dots{display:flex;gap:10px;align-items:center}
+.dots .grp{display:flex;gap:4px;align-items:center}
+.dots i{width:12px;height:12px;border-radius:50%;background:var(--line)}
+.dots i.done{background:currentColor}
+.dots i.cur{outline:2px solid var(--ink);outline-offset:2px}
+.btn{min-height:50px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);font-weight:700}
+.btn.main{background:var(--amber);color:#1a1205;border-color:var(--amber)}
+.btn.ghost{background:transparent}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.85rem}
+.acto{font-family:var(--f-d);text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;font-weight:600}
+.acto.problema{color:var(--problema)} .acto.esfuerzo{color:var(--esfuerzo)} .acto.logro{color:var(--logro)}
+
+/* inicio */
+.start{display:grid;gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
+.plan-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.plan-list li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+.plan-list li:first-child{border-top:none}
+.plan-list .n{font-family:var(--f-d);font-size:1.2rem;color:var(--ink-3);min-width:1.6em}
+.opts{display:grid;gap:12px}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg button{min-height:46px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.lbl{font-size:.85rem;color:var(--ink-3);margin-bottom:6px}
+textarea{width:100%;min-height:140px;background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;font:14px/1.4 ui-monospace,monospace}
+.note{color:var(--ink-2);font-size:.9rem}
+
+/* toma */
+.shoot{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){.shoot{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}}
+.slate{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:10px}
+.slate .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.slate .num{font-family:var(--f-d);font-size:1rem;color:var(--ink-3)}
+.slate .lugar{font-family:var(--f-d);text-transform:uppercase;font-size:1.05rem;letter-spacing:.03em;color:var(--ink-2)}
+.slate .accion{font-size:1.35rem;font-weight:700;line-height:1.3}
+.slate .dice{background:var(--panel-2);border-left:4px solid var(--amber);border-radius:10px;padding:10px 14px;font-size:1.25rem;line-height:1.35}
+.slate .dice b{display:block;font-family:var(--f-d);text-transform:uppercase;letter-spacing:.08em;font-size:.75rem;color:var(--amber);margin-bottom:2px}
+.slate .chips{display:flex;flex-wrap:wrap;gap:6px}
+.slate .tip{color:var(--amber);font-size:.95rem}
+.cam{position:relative;background:#000;border-radius:16px;overflow:hidden;aspect-ratio:3/4;max-height:72vh;width:100%;margin:0 auto}
+.cam video,.cam canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cam.mirror video,.cam.mirror canvas{transform:scaleX(-1)}
+.cam .status{position:absolute;left:10px;right:10px;bottom:10px;background:rgba(14,15,19,.82);border-radius:12px;padding:10px 14px;font-weight:700;font-size:1.1rem;text-align:center}
+.cam .status.go{background:rgba(229,72,77,.92)}
+.cam .status.ok{background:rgba(61,214,140,.92);color:#04140b}
+.cam .rec{position:absolute;top:10px;left:10px;display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.6);border-radius:999px;padding:4px 12px;font-family:var(--f-d);font-size:1.1rem}
+.cam .rec i{width:12px;height:12px;border-radius:50%;background:var(--rec)}
+.cam .count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--f-d);font-size:7rem;font-weight:700;color:rgba(255,255,255,.9);text-shadow:0 4px 30px rgba(0,0,0,.6);pointer-events:none}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
+.check b{display:flex;justify-content:space-between;font-family:var(--f-d);text-transform:uppercase;letter-spacing:.05em;font-size:.85rem;color:var(--ink-2)}
+.check b span{font-family:var(--f-b)}
+.check p{margin:4px 0 0;font-size:.92rem}
+.check.ok{border-color:rgba(61,214,140,.5)} .check.ok b span{color:var(--ok)}
+.check.bad{border-color:rgba(242,181,68,.6)} .check.bad b span{color:var(--warn)}
+.check.off{opacity:.55}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1 1 auto}
+
+/* fin */
+.acts{display:grid;gap:12px}
+@media (min-width:800px){.acts{grid-template-columns:repeat(3,1fr)}}
+.act-col h3{margin:0 0 8px;font-family:var(--f-d);text-transform:uppercase;letter-spacing:.06em}
+.clip{background:var(--panel-2);border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:.9rem}
+.clip code{display:block;color:var(--amber);font-size:.82rem;word-break:break-all}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ok);color:#04140b;font-weight:700;padding:10px 18px;border-radius:999px;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="ttl">Director de rodaje<small id="sub">Cargando plan…</small></h1>
+    <div class="dots" id="dots" aria-label="Avance por acto"></div>
+  </header>
+
+  <!-- ============ INICIO ============ -->
+  <section id="vStart" class="start">
+    <div class="card">
+      <div class="lbl">Plan de tomas</div>
+      <p class="note" id="planNote"></p>
+      <ul class="plan-list" id="planList"></ul>
+    </div>
+    <div class="card opts">
+      <div>
+        <div class="lbl">¿Qué cámara revisa?</div>
+        <div class="seg" id="segCam">
+          <button aria-pressed="true" data-v="user">Frontal o de la laptop</button>
+          <button aria-pressed="false" data-v="environment">Trasera del celular</button>
+        </div>
+      </div>
+      <div>
+        <div class="lbl">¿Qué hace esta pantalla?</div>
+        <div class="seg" id="segMode">
+          <button aria-pressed="true" data-v="revisar">Solo revisar (grabo con el celular)</button>
+          <button aria-pressed="false" data-v="grabar">Revisar y grabar aquí</button>
+        </div>
+      </div>
+      <div>
+        <div class="lbl">Voz</div>
+        <div class="seg" id="segVoz">
+          <button aria-pressed="true" data-v="1">Que me dicte en voz alta</button>
+          <button aria-pressed="false" data-v="0">Sin voz</button>
+        </div>
+      </div>
+      <button class="btn main" id="go">🎬 Empezar el rodaje</button>
+      <p class="note" id="camNote">La cámara se pide al empezar. Nada se sube a internet: todo se revisa en este aparato.</p>
+    </div>
+    <details class="card">
+      <summary>Pegar otro plan (JSON)</summary>
+      <p class="note">El agente de marketing te da el plan; pégalo aquí y toca Cargar.</p>
+      <textarea id="paste" spellcheck="false"></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn" id="loadPaste">Cargar plan</button></div>
+    </details>
+  </section>
+
+  <!-- ============ TOMA ============ -->
+  <section id="vShoot" class="shoot" hidden>
+    <div class="cam" id="cam">
+      <video id="video" playsinline muted autoplay></video>
+      <canvas id="overlay"></canvas>
+      <div class="rec" id="recBadge" hidden><i></i><span id="recT">0.0 s</span></div>
+      <div class="count" id="count" hidden></div>
+      <div class="status" id="status">Prendiendo la cámara…</div>
+    </div>
+    <div style="display:grid;gap:12px">
+      <div class="slate">
+        <div class="top"><span class="acto" id="sActo"></span><span class="num" id="sNum"></span></div>
+        <div class="lugar" id="sLugar"></div>
+        <div class="accion" id="sAccion"></div>
+        <div class="dice" id="sDice" hidden><b>Di</b><span></span></div>
+        <div class="chips" id="sChips"></div>
+        <div class="tip" id="sTip"></div>
+      </div>
+      <div class="checks">
+        <div class="check" id="cEnc"><b>Encuadre <span>·</span></b><p>…</p></div>
+        <div class="check" id="cAire"><b>Aire arriba <span>·</span></b><p>…</p></div>
+        <div class="check" id="cLuz"><b>Luz <span>·</span></b><p>…</p></div>
+        <div class="check" id="cEst"><b>Estabilidad <span>·</span></b><p>…</p></div>
+      </div>
+      <div class="row">
+        <button class="btn" id="bPrev">← Anterior</button>
+        <button class="btn" id="bRetry">↺ Repetir</button>
+        <button class="btn" id="bForce">✓ Aprobar a mano</button>
+        <button class="btn main" id="bNext">Siguiente →</button>
+      </div>
+      <button class="btn ghost" id="bEnd">Terminar y ver el resumen</button>
+    </div>
+  </section>
+
+  <!-- ============ FIN ============ -->
+  <section id="vEnd" hidden>
+    <div class="card" style="margin-bottom:12px">
+      <p style="margin:0 0 6px;font-family:var(--f-d);text-transform:uppercase;font-size:1.3rem">Resumen del rodaje</p>
+      <p class="note" id="endNote"></p>
+    </div>
+    <div class="acts" id="acts"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn main" id="bCopy">📋 Copiar la lista para el editor</button>
+      <button class="btn" id="bBack">Volver a las tomas</button>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+const $=(s)=>document.querySelector(s), $$=(s)=>[...document.querySelectorAll(s)];
+const ACTOS=["problema","esfuerzo","logro"], NOMBRE={problema:"Problema",esfuerzo:"Esfuerzo",logro:"Logro"};
+const ENC={cerrado:[0.28,0.62,"Cerrado: la cara llena un tercio"],medio:[0.12,0.30,"Medio: de la cintura o pecho para arriba"],abierto:[0.04,0.13,"Abierto: cuerpo completo y lugar"],manos:null};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let plan=null, idx=0, aprobadas={}, opts={cam:"user",mode:"revisar",voz:true};
+let stream=null, detector=null, raf=0, lastT=0, prevGray=null, okSince=0, phase="ajustando", rec=null, chunks=[], recStart=0, lostSince=0, lastSpoken="", lastSpokeAt=0;
+
+/* ---------- plan ---------- */
+function slug(s){return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,28);}
+function fileName(i){const t=plan.tomas[i];return String(i+1).padStart(2,"0")+"-"+t.acto+"-"+slug(t.lugar||t.accion);}
+function validate(p){if(!p||!Array.isArray(p.tomas)||!p.tomas.length)throw new Error("El plan no trae tomas.");p.tomas.forEach((t,i)=>{if(!ACTOS.includes(t.acto))throw new Error("Toma "+(i+1)+": el acto debe ser problema, esfuerzo o logro.");t.encuadre=t.encuadre||"medio";t.dur=+t.dur||5;});return p;}
+async function loadPlan(){
+  const q=new URLSearchParams(location.search).get("p")||"ejemplo-gnp";
+  try{const r=await fetch("planes/"+encodeURIComponent(q)+".json",{cache:"no-store"});if(!r.ok)throw new Error("No encontré el plan «"+q+"».");setPlan(validate(await r.json()),q);}
+  catch(e){const saved=store.get("plan-pegado");if(saved){try{setPlan(validate(JSON.parse(saved)),"pegado");return;}catch(_){}}$("#sub").textContent=e.message;}
+}
+function setPlan(p,key){
+  plan=p;plan._key=key;idx=0;
+  try{aprobadas=JSON.parse(store.get("ok-"+key)||"{}");}catch(e){aprobadas={};}
+  $("#ttl").firstChild.textContent=p.titulo||"Director de rodaje";
+  $("#sub").textContent=p.tomas.length+" tomas · problema → esfuerzo → logro";
+  $("#planNote").textContent=p.nota||"";
+  $("#planList").innerHTML=p.tomas.map((t,i)=>`<li><span class="n">${i+1}</span><div><span class="acto ${t.acto}">${NOMBRE[t.acto]}</span> · <b>${esc(t.lugar||"")}</b><br>${esc(t.accion)}${t.dice?"<br><i style=\"color:var(--amber)\">«"+esc(t.dice)+"»</i>":""}<br><span class="note">${t.encuadre==="manos"?"Manos, sin cara":"Plano "+t.encuadre} · ${t.dur} s${aprobadas[i]?" · ✓ aprobada":""}</span></div></li>`).join("");
+  drawDots();
+}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function drawDots(){
+  if(!plan)return;
+  $("#dots").innerHTML=ACTOS.map(a=>`<span class="grp" style="color:var(--${a})" title="${NOMBRE[a]}">`+plan.tomas.map((t,i)=>t.acto===a?`<i class="${aprobadas[i]?"done":""} ${(!$("#vShoot").hidden&&i===idx)?"cur":""}"></i>`:"").join("")+`</span>`).join("");
+}
+
+/* ---------- opciones ---------- */
+function seg(id,key,conv){$$("#"+id+" button").forEach(b=>b.addEventListener("click",()=>{$$("#"+id+" button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));opts[key]=conv?conv(b.dataset.v):b.dataset.v;}));}
+seg("segCam","cam");seg("segMode","mode");seg("segVoz","voz",v=>v==="1");
+$("#loadPaste").addEventListener("click",()=>{try{const p=validate(JSON.parse($("#paste").value));store.set("plan-pegado",JSON.stringify(p));setPlan(p,"pegado");toast("Plan cargado");}catch(e){toast("No se pudo leer: "+e.message);}});
+
+/* ---------- voz ---------- */
+let voz=null;
+function pickVoice(){const vs=speechSynthesis.getVoices();voz=vs.find(v=>/es-MX/i.test(v.lang))||vs.find(v=>/^es/i.test(v.lang))||null;}
+if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function say(text,force){
+  if(!opts.voz||!("speechSynthesis" in window))return;
+  const now=performance.now();
+  if(!force&&(text===lastSpoken&&now-lastSpokeAt<9000||now-lastSpokeAt<3500))return;
+  lastSpoken=text;lastSpokeAt=now;
+  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="es-MX";if(voz)u.voice=voz;u.rate=1.02;speechSynthesis.speak(u);
+}
+
+/* ---------- cámara y detector ---------- */
+async function startCamera(){
+  stopCamera();
+  const v=$("#video");
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:opts.cam,width:{ideal:1920},height:{ideal:1080}},audio:opts.mode==="grabar"});
+  v.srcObject=stream;await v.play();
+  $("#cam").classList.toggle("mirror",opts.cam==="user");
+  const s=stream.getVideoTracks()[0].getSettings();
+  if(s.width&&s.height)$("#cam").style.aspectRatio=(s.width/s.height).toFixed(4);
+}
+function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}}
+async function loadDetector(){
+  try{
+    const m=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs");
+    const fs=await m.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
+    detector=await m.FaceDetector.createFromOptions(fs,{baseOptions:{modelAssetPath:"modelo/blaze_face_short_range.tflite",delegate:"CPU"},runningMode:"VIDEO",minDetectionConfidence:0.5});
+  }catch(e){detector=null;console.warn("Detector de caras no disponible",e);}
+}
+
+/* ---------- análisis por cuadro ---------- */
+const small=document.createElement("canvas"), sctx=small.getContext("2d",{willReadFrequently:true});
+function analyze(now){
+  const v=$("#video");if(!v.videoWidth)return null;
+  const W=v.videoWidth,H=v.videoHeight,sw=96,sh=Math.round(96*H/W);
+  small.width=sw;small.height=sh;sctx.drawImage(v,0,0,sw,sh);
+  const px=sctx.getImageData(0,0,sw,sh).data, gray=new Float32Array(sw*sh);
+  for(let i=0;i<sw*sh;i++)gray[i]=0.299*px[i*4]+0.587*px[i*4+1]+0.114*px[i*4+2];
+  let motion=0;if(prevGray&&prevGray.length===gray.length){for(let i=0;i<gray.length;i++)motion+=Math.abs(gray[i]-prevGray[i]);motion/=gray.length;}
+  prevGray=gray;
+  let face=null;
+  if(detector){try{const r=detector.detectForVideo(v,now);if(r.detections&&r.detections.length){const b=r.detections.sort((a,c)=>c.boundingBox.width-a.boundingBox.width)[0].boundingBox;face={x:b.originX,y:b.originY,w:b.width,h:b.height};}}catch(e){}}
+  // luz: zona de la cara (o todo el cuadro) y diferencia izquierda/derecha
+  let x0=0,x1=sw,y0=0,y1=sh;
+  if(face){x0=Math.max(0,Math.floor(face.x/W*sw));x1=Math.min(sw,Math.ceil((face.x+face.w)/W*sw));y0=Math.max(0,Math.floor(face.y/H*sh));y1=Math.min(sh,Math.ceil((face.y+face.h)/H*sh));}
+  let sum=0,n=0,l=0,ln=0,rr=0,rn=0;const mid=(x0+x1)/2;
+  for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const g=gray[y*sw+x];sum+=g;n++;if(x<mid){l+=g;ln++}else{rr+=g;rn++}}
+  const luma=n?sum/n:0, side=(ln&&rn&&luma)?Math.abs(l/ln-rr/rn)/luma:0;
+  return {W,H,face,luma,side,motion};
+}
+function evaluate(a,t){
+  const res={};
+  const needFace=t.encuadre!=="manos";
+  if(!needFace){res.enc={off:true,ok:true,msg:"Toma de manos: sin cara"};res.aire={off:true,ok:true,msg:"No aplica"};}
+  else if(!detector){res.enc={off:true,ok:true,msg:"Sin detector: revísalo a ojo"};res.aire={off:true,ok:true,msg:"Revísalo a ojo"};}
+  else if(!a.face){res.enc={ok:false,msg:"No te veo: ponte frente a la cámara"};res.aire={ok:false,msg:"Esperando tu cara"};}
+  else{
+    const [lo,hi]=ENC[t.encuadre]||ENC.medio, ratio=a.face.h/a.H, cx=(a.face.x+a.face.w/2)/a.W;
+    if(ratio>hi)res.enc={ok:false,msg:"Muy cerca: aléjate un paso"};
+    else if(ratio<lo)res.enc={ok:false,msg:"Muy lejos: acércate un paso"};
+    else if(cx<0.28||cx>0.72)res.enc={ok:false,msg:"Muévete hacia el centro"};
+    else res.enc={ok:true,msg:"Plano "+t.encuadre+" ✓"};
+    const [al,ah]=t.aire||[8,18], top=Math.max(0,a.face.y-0.38*a.face.h), aire=top/a.H*100;
+    if(aire<al)res.aire={ok:false,msg:`${aire.toFixed(0)} %: la cabeza toca arriba, baja la cámara o aléjate`};
+    else if(aire>ah)res.aire={ok:false,msg:`${aire.toFixed(0)} %: sobra espacio, sube la cámara`};
+    else res.aire={ok:true,msg:`${aire.toFixed(0)} % de aire ✓`};
+  }
+  if(a.luma<70)res.luz={ok:false,msg:"Falta luz: acércate a la ventana"};
+  else if(a.luma>215)res.luz={ok:false,msg:"Demasiada luz: aléjate un poco de la ventana"};
+  else if(t.luz==="lado"&&a.side<0.05)res.luz={ok:false,msg:"Luz plana: gírate para que la ventana te dé de lado"};
+  else res.luz={ok:true,msg:t.luz==="lado"?"Suave y de lado ✓":"Bien iluminado ✓"};
+  res.est=a.motion<7?{ok:true,msg:"Firme ✓"}:{ok:false,msg:"Se mueve: apoya el celular y quédate quieto"};
+  return res;
+}
+function paintChecks(r){
+  const map={enc:"#cEnc",aire:"#cAire",luz:"#cLuz",est:"#cEst"};
+  for(const k in map){const el=$(map[k]),c=r[k];el.className="check "+(c.off?"off":c.ok?"ok":"bad");el.querySelector("span").textContent=c.off?"·":c.ok?"✓":"✗";el.querySelector("p").textContent=c.msg;}
+}
+function drawOverlay(a,t){
+  const c=$("#overlay"),x=c.getContext("2d");c.width=a.W;c.height=a.H;x.clearRect(0,0,a.W,a.H);
+  x.strokeStyle="rgba(255,255,255,.22)";x.lineWidth=Math.max(1,a.W/500);
+  for(let i=1;i<3;i++){x.beginPath();x.moveTo(a.W*i/3,0);x.lineTo(a.W*i/3,a.H);x.stroke();x.beginPath();x.moveTo(0,a.H*i/3);x.lineTo(a.W,a.H*i/3);x.stroke();}
+  if(t.encuadre!=="manos"){const [al,ah]=t.aire||[8,18];x.fillStyle="rgba(242,181,68,.13)";x.fillRect(0,a.H*al/100,a.W,a.H*(ah-al)/100);}
+  if(a.face){x.strokeStyle=phase==="grabando"?"#E5484D":"#F2B544";x.lineWidth=Math.max(2,a.W/250);x.strokeRect(a.face.x,a.face.y-0.38*a.face.h,a.face.w,a.face.h*1.38);}
+}
+
+/* ---------- ciclo de la toma ---------- */
+function setStatus(text,cls){const s=$("#status");s.textContent=text;s.className="status"+(cls?" "+cls:"");}
+function loop(now){
+  raf=requestAnimationFrame(loop);
+  if(now-lastT<100)return;lastT=now;
+  const t=plan.tomas[idx], a=analyze(now);if(!a)return;
+  const r=evaluate(a,t);paintChecks(r);drawOverlay(a,t);
+  const allOk=r.enc.ok&&r.aire.ok&&r.luz.ok&&r.est.ok;
+  if(phase==="ajustando"){
+    if(allOk){if(!okSince)okSince=now;const left=900-(now-okSince);setStatus("¡Así! No te muevas…","");if(left<=0)beginTake(now);}
+    else{okSince=0;const bad=[r.enc,r.aire,r.luz,r.est].find(c=>!c.ok);setStatus(bad.msg);say(bad.msg);}
+  }else if(phase==="grabando"){
+    const el=(now-recStart)/1000, rest=Math.max(0,Math.ceil(t.dur-el));
+    $("#recT").textContent=el.toFixed(1)+" s";$("#count").hidden=rest>3||rest===0;$("#count").textContent=rest;
+    if(t.encuadre!=="manos"&&detector&&!a.face){if(!lostSince)lostSince=now;if(now-lostSince>1200){cutTake("Te saliste de cuadro: repetimos");return;}}else lostSince=0;
+    if(el>=t.dur)finishTake();
+  }
+}
+function beginTake(now){
+  phase="grabando";recStart=now;lostSince=0;$("#recBadge").hidden=false;setStatus("● ACCIÓN · "+(plan.tomas[idx].sentir||""),"go");say("Acción",true);
+  if(opts.mode==="grabar"&&stream&&window.MediaRecorder){
+    const mt=["video/mp4","video/webm;codecs=vp9,opus","video/webm"].find(m=>MediaRecorder.isTypeSupported(m))||"";
+    chunks=[];rec=new MediaRecorder(stream,mt?{mimeType:mt}:undefined);rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};rec.start(250);
+  }
+}
+function cutTake(msg){phase="ajustando";okSince=0;$("#recBadge").hidden=true;$("#count").hidden=true;if(rec){rec.onstop=null;try{rec.stop()}catch(e){}rec=null;}setStatus(msg);say(msg,true);}
+function finishTake(){
+  phase="aprobada";$("#recBadge").hidden=true;$("#count").hidden=true;
+  aprobadas[idx]=true;store.set("ok-"+plan._key,JSON.stringify(aprobadas));drawDots();
+  setStatus("✓ Toma aprobada · "+fileName(idx),"ok");say("Corte. Toma aprobada.",true);
+  if(rec){const r=rec,i=idx;rec=null;r.onstop=()=>{const blob=new Blob(chunks,{type:r.mimeType||"video/webm"});const ext=/mp4/.test(blob.type)?"mp4":"webm";const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fileName(i)+"."+ext;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},4000);};r.stop();}
+}
+function showTake(i){
+  idx=Math.max(0,Math.min(plan.tomas.length-1,i));const t=plan.tomas[idx];
+  phase="ajustando";okSince=0;prevGray=null;$("#recBadge").hidden=true;$("#count").hidden=true;
+  $("#sActo").textContent=NOMBRE[t.acto];$("#sActo").className="acto "+t.acto;
+  $("#sNum").textContent="Toma "+(idx+1)+" de "+plan.tomas.length+(aprobadas[idx]?" · ✓ ya aprobada":"");
+  $("#sLugar").textContent=t.lugar||"";$("#sAccion").textContent=t.accion;$("#sDice").hidden=!t.dice;$("#sDice span").textContent=t.dice?"«"+t.dice+"»":"";
+  $("#sChips").innerHTML=[t.encuadre==="manos"?"🖐 Manos, sin cara":"🎥 "+(ENC[t.encuadre]||ENC.medio)[2],t.luz==="lado"?"💡 Una luz, de lado":"💡 "+(t.luz||"Luz suave"),"⏱ "+t.dur+" s",t.sentir?"🎭 "+t.sentir:""].filter(Boolean).map(c=>`<span class="chip">${esc(c)}</span>`).join("");
+  $("#sTip").textContent=t.tip?"Consejo: "+t.tip:"";
+  setStatus("Acomódate para la toma");drawDots();
+  say("Toma "+(idx+1)+". "+NOMBRE[t.acto]+". "+t.accion+(t.dice?". Vas a decir: "+t.dice:""),true);
+}
+$("#go").addEventListener("click",async()=>{
+  if(!plan)return;
+  $("#vStart").hidden=true;$("#vShoot").hidden=false;setStatus("Prendiendo la cámara…");
+  try{await startCamera();}catch(e){setStatus("No pude abrir la cámara: revisa el permiso del navegador");return;}
+  if(!detector){setStatus("Cargando el detector de encuadre…");await loadDetector();}
+  showTake(Object.keys(aprobadas).length&&!aprobadas[0]?0:firstPending());cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+});
+function firstPending(){const i=plan.tomas.findIndex((_,k)=>!aprobadas[k]);return i<0?0:i;}
+$("#bNext").addEventListener("click",()=>{if(idx>=plan.tomas.length-1)return showEnd();showTake(idx+1);});
+$("#bPrev").addEventListener("click",()=>showTake(idx-1));
+$("#bRetry").addEventListener("click",()=>{cutTake("Repetimos la toma");});
+$("#bForce").addEventListener("click",()=>{if(phase!=="aprobada"){if(rec){finishTake();}else{aprobadas[idx]=true;store.set("ok-"+plan._key,JSON.stringify(aprobadas));phase="aprobada";drawDots();setStatus("✓ Aprobada a mano · "+fileName(idx),"ok");}}});
+$("#bEnd").addEventListener("click",showEnd);
+$("#bBack").addEventListener("click",()=>{$("#vEnd").hidden=true;$("#vShoot").hidden=false;showTake(firstPending());});
+
+/* ---------- resumen ---------- */
+function summaryText(){return plan.tomas.map((t,i)=>`${aprobadas[i]?"✓":"·"} ${fileName(i)} | ${NOMBRE[t.acto]} | ${t.accion}${t.dice?" | Dice: "+t.dice:""}`).join("\n");}
+function showEnd(){
+  cancelAnimationFrame(raf);stopCamera();if("speechSynthesis" in window)speechSynthesis.cancel();
+  $("#vShoot").hidden=true;$("#vEnd").hidden=false;drawDots();
+  const n=Object.keys(aprobadas).length;
+  $("#endNote").textContent=`${n} de ${plan.tomas.length} tomas aprobadas. Renombra los clips del celular con estos nombres (o guárdalos en este orden) y el editor arma el video por acto.`;
+  $("#acts").innerHTML=ACTOS.map(a=>`<div class="card act-col"><h3 class="acto ${a}">${NOMBRE[a]}</h3>`+plan.tomas.map((t,i)=>t.acto===a?`<div class="clip">${aprobadas[i]?"✓":"·"} ${esc(t.accion)}<code>${fileName(i)}</code></div>`:"").join("")+`</div>`).join("");
+}
+$("#bCopy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(summaryText());toast("Lista copiada");}catch(e){toast("No se pudo copiar");}});
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),2200);}
+
+loadPlan();
+</script>
+</body>
+</html>
