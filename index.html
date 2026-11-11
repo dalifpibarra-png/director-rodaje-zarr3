@@ -76,6 +76,16 @@ textarea{width:100%;min-height:140px;background:var(--panel-2);color:var(--ink);
 .cam .rec{position:absolute;top:10px;left:10px;display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.6);border-radius:999px;padding:4px 12px;font-family:var(--f-d);font-size:1.1rem}
 .cam .rec i{width:12px;height:12px;border-radius:50%;background:var(--rec)}
 .cam .count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--f-d);font-size:7rem;font-weight:700;color:rgba(255,255,255,.9);text-shadow:0 4px 30px rgba(0,0,0,.6);pointer-events:none}
+/* Lo que dice va arriba, junto al lente frontal: así lee sin que los ojos se vayan lejos de la cámara. */
+.cam .prompt{position:absolute;top:52px;left:10px;right:10px;background:rgba(14,15,19,.78);border-left:4px solid var(--amber);border-radius:12px;padding:8px 12px;font-weight:700;font-size:1.15rem;line-height:1.3;text-align:center;pointer-events:none}
+@media (max-width:899px){
+  .cam{max-height:64vh}
+  .cam .prompt{font-size:1.05rem}
+  /* En el celular los botones quedan fijos abajo: no hay que bajar a buscarlos con la cámara puesta. */
+  .side .row{position:sticky;bottom:0;z-index:3;background:var(--bg);padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));margin-inline:-2px}
+  .side .row .btn{min-height:54px;padding:0 10px;font-size:.95rem}
+  .slate{order:2} .checks{order:3} .side .row{order:1}
+}
 .checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .check{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
 .check b{display:flex;justify-content:space-between;font-family:var(--f-d);text-transform:uppercase;letter-spacing:.05em;font-size:.85rem;color:var(--ink-2)}
@@ -122,7 +132,7 @@ textarea{width:100%;min-height:140px;background:var(--panel-2);color:var(--ink);
       <div>
         <div class="lbl">¿Qué hace esta pantalla?</div>
         <div class="seg" id="segMode">
-          <button aria-pressed="true" data-v="revisar">Solo revisar (grabo con el celular)</button>
+          <button aria-pressed="true" data-v="revisar">Solo revisar (grabo con otra cámara)</button>
           <button aria-pressed="false" data-v="grabar">Revisar y grabar aquí</button>
         </div>
       </div>
@@ -151,9 +161,10 @@ textarea{width:100%;min-height:140px;background:var(--panel-2);color:var(--ink);
       <canvas id="overlay"></canvas>
       <div class="rec" id="recBadge" hidden><i></i><span id="recT">0.0 s</span></div>
       <div class="count" id="count" hidden></div>
+      <div class="prompt" id="camDice" hidden></div>
       <div class="status" id="status">Prendiendo la cámara…</div>
     </div>
-    <div style="display:grid;gap:12px">
+    <div class="side" style="display:grid;gap:12px">
       <div class="slate">
         <div class="top"><span class="acto" id="sActo"></span><span class="num" id="sNum"></span></div>
         <div class="lugar" id="sLugar"></div>
@@ -186,6 +197,7 @@ textarea{width:100%;min-height:140px;background:var(--panel-2);color:var(--ink);
     </div>
     <div class="acts" id="acts"></div>
     <div class="row" style="margin-top:12px">
+      <button class="btn main" id="bSave" hidden>💾 Guardar las tomas en el celular</button>
       <button class="btn main" id="bCopy">📋 Copiar la lista para el editor</button>
       <button class="btn" id="bBack">Volver a las tomas</button>
     </div>
@@ -198,7 +210,9 @@ const $=(s)=>document.querySelector(s), $$=(s)=>[...document.querySelectorAll(s)
 const ACTOS=["problema","esfuerzo","logro"], NOMBRE={problema:"Problema",esfuerzo:"Esfuerzo",logro:"Logro"};
 const ENC={cerrado:[0.28,0.62,"Cerrado: la cara llena un tercio"],medio:[0.12,0.30,"Medio: de la cintura o pecho para arriba"],abierto:[0.04,0.13,"Abierto: cuerpo completo y lugar"],manos:null};
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
-let plan=null, idx=0, aprobadas={}, opts={cam:"user",mode:"revisar",voz:true};
+// iPad moderno se presenta como Mac: se reconoce por la pantalla táctil.
+const MOVIL=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Mac/i.test(navigator.platform));
+let plan=null, idx=0, aprobadas={}, opts={cam:"user",mode:MOVIL?"grabar":"revisar",voz:true}, clips={}, wake=null;
 let stream=null, detector=null, raf=0, lastT=0, prevGray=null, okSince=0, phase="ajustando", rec=null, chunks=[], recStart=0, lostSince=0, lastSpoken="", lastSpokeAt=0;
 
 /* ---------- plan ---------- */
@@ -228,6 +242,12 @@ function drawDots(){
 /* ---------- opciones ---------- */
 function seg(id,key,conv){$$("#"+id+" button").forEach(b=>b.addEventListener("click",()=>{$$("#"+id+" button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));opts[key]=conv?conv(b.dataset.v):b.dataset.v;}));}
 seg("segCam","cam");seg("segMode","mode");seg("segVoz","voz",v=>v==="1");
+$$("#segMode button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===opts.mode?"true":"false"));
+/* Pantalla siempre prendida durante el rodaje (iPhone con iOS 16.4+, Android, Chrome). Se pierde al
+   salir de la pestaña, por eso se vuelve a pedir al regresar. */
+async function keepAwake(){try{if("wakeLock" in navigator&&!$("#vShoot").hidden)wake=await navigator.wakeLock.request("screen");}catch(e){}}
+function releaseAwake(){try{wake&&wake.release();}catch(e){}wake=null;}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")keepAwake();});
 $("#loadPaste").addEventListener("click",()=>{try{const p=validate(JSON.parse($("#paste").value));store.set("plan-pegado",JSON.stringify(p));setPlan(p,"pegado");toast("Plan cargado");}catch(e){toast("No se pudo leer: "+e.message);}});
 
 /* ---------- voz ---------- */
@@ -249,8 +269,9 @@ async function startCamera(){
   stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:opts.cam,width:{ideal:1920},height:{ideal:1080}},audio:opts.mode==="grabar"});
   v.srcObject=stream;await v.play();
   $("#cam").classList.toggle("mirror",opts.cam==="user");
-  const s=stream.getVideoTracks()[0].getSettings();
-  if(s.width&&s.height)$("#cam").style.aspectRatio=(s.width/s.height).toFixed(4);
+  // Medidas del video ya girado: en el iPhone vertical getSettings() puede decir 1920×1080 aunque se vea 1080×1920.
+  const w=v.videoWidth,h=v.videoHeight;
+  if(w&&h)$("#cam").style.aspectRatio=(w/h).toFixed(4);
 }
 function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}}
 let detPromise=null;
@@ -349,14 +370,21 @@ function finishTake(){
   phase="aprobada";$("#recBadge").hidden=true;$("#count").hidden=true;
   aprobadas[idx]=true;store.set("ok-"+plan._key,JSON.stringify(aprobadas));drawDots();
   setStatus("✓ Toma aprobada · "+fileName(idx),"ok");say("Corte. Toma aprobada.",true);
-  if(rec){const r=rec,i=idx;rec=null;r.onstop=()=>{const blob=new Blob(chunks,{type:r.mimeType||"video/webm"});const ext=/mp4/.test(blob.type)?"mp4":"webm";const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fileName(i)+"."+ext;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},4000);};r.stop();}
+  if(rec){const r=rec,i=idx;rec=null;r.onstop=()=>{const blob=new Blob(chunks,{type:r.mimeType||"video/webm"});const ext=/mp4/.test(blob.type)?"mp4":"webm";
+    clips[i]={blob,ext};
+    // En el celular una descarga por toma abre una hoja nueva y corta el rodaje: se juntan y se guardan al final.
+    if(MOVIL){toast("Toma "+(i+1)+" guardada · al final pasan a Fotos");return;}
+    downloadClip(i);};r.stop();}
 }
+function clipFile(i){const c=clips[i];return new File([c.blob],fileName(i)+"."+c.ext,{type:c.blob.type});}
+function downloadClip(i){const a=document.createElement("a");a.href=URL.createObjectURL(clips[i].blob);a.download=fileName(i)+"."+clips[i].ext;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},4000);}
 function showTake(i){
   idx=Math.max(0,Math.min(plan.tomas.length-1,i));const t=plan.tomas[idx];
   phase="ajustando";okSince=0;prevGray=null;$("#recBadge").hidden=true;$("#count").hidden=true;
   $("#sActo").textContent=NOMBRE[t.acto];$("#sActo").className="acto "+t.acto;
   $("#sNum").textContent="Toma "+(idx+1)+" de "+plan.tomas.length+(aprobadas[idx]?" · ✓ ya aprobada":"");
   $("#sLugar").textContent=t.lugar||"";$("#sAccion").textContent=t.accion;$("#sDice").hidden=!t.dice;$("#sDice span").textContent=t.dice?"«"+t.dice+"»":"";
+  $("#camDice").hidden=!t.dice;$("#camDice").textContent=t.dice?"«"+t.dice+"»":"";
   $("#sChips").innerHTML=[t.encuadre==="manos"?"🖐 Manos, sin cara":"🎥 "+(ENC[t.encuadre]||ENC.medio)[2],t.luz==="lado"?"💡 Una luz, de lado":"💡 "+(t.luz||"Luz suave"),"⏱ "+t.dur+" s",t.sentir?"🎭 "+t.sentir:""].filter(Boolean).map(c=>`<span class="chip">${esc(c)}</span>`).join("");
   $("#sTip").textContent=t.tip?"Consejo: "+t.tip:"";
   setStatus("Acomódate para la toma");drawDots();
@@ -364,7 +392,9 @@ function showTake(i){
 }
 $("#go").addEventListener("click",async()=>{
   if(!plan)return;
-  $("#vStart").hidden=true;$("#vShoot").hidden=false;setStatus("Prendiendo la cámara…");
+  // iPhone solo deja hablar si la primera frase sale en el mismo toque; después de esperar la cámara ya no.
+  if(opts.voz&&"speechSynthesis" in window){const u=new SpeechSynthesisUtterance("Vamos");u.lang="es-MX";if(voz)u.voice=voz;speechSynthesis.speak(u);}
+  $("#vStart").hidden=true;$("#vShoot").hidden=false;setStatus("Prendiendo la cámara…");keepAwake();
   try{await startCamera();}catch(e){setStatus("No pude abrir la cámara: revisa el permiso del navegador");return;}
   if(!detector){setStatus("Terminando de cargar el detector de encuadre…");await ensureDetector();}
   showTake(Object.keys(aprobadas).length&&!aprobadas[0]?0:firstPending());cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
@@ -380,12 +410,19 @@ $("#bBack").addEventListener("click",()=>{$("#vEnd").hidden=true;$("#vShoot").hi
 /* ---------- resumen ---------- */
 function summaryText(){return plan.tomas.map((t,i)=>`${aprobadas[i]?"✓":"·"} ${fileName(i)} | ${NOMBRE[t.acto]} | ${t.accion}${t.dice?" | Dice: "+t.dice:""}`).join("\n");}
 function showEnd(){
-  cancelAnimationFrame(raf);stopCamera();if("speechSynthesis" in window)speechSynthesis.cancel();
+  cancelAnimationFrame(raf);stopCamera();releaseAwake();if("speechSynthesis" in window)speechSynthesis.cancel();
   $("#vShoot").hidden=true;$("#vEnd").hidden=false;drawDots();
-  const n=Object.keys(aprobadas).length;
-  $("#endNote").textContent=`${n} de ${plan.tomas.length} tomas aprobadas. Renombra los clips del celular con estos nombres (o guárdalos en este orden) y el editor arma el video por acto.`;
+  const n=Object.keys(aprobadas).length, nc=Object.keys(clips).length;
+  $("#bSave").hidden=!nc;$("#bSave").textContent=`💾 Guardar ${nc} toma${nc===1?"":"s"} en el celular`;
+  $("#endNote").textContent=`${n} de ${plan.tomas.length} tomas aprobadas. `+(nc?`Las ${nc} grabadas aquí viven en esta pestaña: guárdalas antes de cerrarla (en el iPhone: Guardar videos → quedan en Fotos, ya con nombre y en orden).`:`Renombra los clips del celular con estos nombres (o guárdalos en este orden) y el editor arma el video por acto.`);
   $("#acts").innerHTML=ACTOS.map(a=>`<div class="card act-col"><h3 class="acto ${a}">${NOMBRE[a]}</h3>`+plan.tomas.map((t,i)=>t.acto===a?`<div class="clip">${aprobadas[i]?"✓":"·"} ${esc(t.accion)}<code>${fileName(i)}</code></div>`:"").join("")+`</div>`).join("");
 }
+$("#bSave").addEventListener("click",async()=>{
+  const ids=Object.keys(clips).map(Number).sort((a,b)=>a-b), files=ids.map(clipFile);
+  // Hoja de compartir del sistema: en iPhone ofrece «Guardar N videos» directo a Fotos.
+  if(navigator.canShare&&navigator.canShare({files})){try{await navigator.share({files,title:plan.titulo||"Tomas"});toast("Listo");}catch(e){if(e.name!=="AbortError")toast("No se pudo compartir: "+e.message);}return;}
+  ids.forEach((i,k)=>setTimeout(()=>downloadClip(i),k*600));toast("Descargando "+ids.length+" tomas");
+});
 $("#bCopy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(summaryText());toast("Lista copiada");}catch(e){toast("No se pudo copiar");}});
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),2200);}
 
