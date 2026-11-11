@@ -317,8 +317,10 @@ function evaluate(a,t){
     else if(cx<0.28||cx>0.72)res.enc={ok:false,msg:"Muévete hacia el centro"};
     else res.enc={ok:true,msg:"Plano "+t.encuadre+" ✓"};
     const [al,ah]=t.aire||[8,18], top=Math.max(0,a.face.y-0.38*a.face.h), aire=top/a.H*100;
-    if(aire<al)res.aire={ok:false,msg:`${aire.toFixed(0)} %: la cabeza toca arriba, baja la cámara o aléjate`};
-    else if(aire>ah)res.aire={ok:false,msg:`${aire.toFixed(0)} %: sobra espacio, sube la cámara`};
+    // Subir el celular BAJA la cara en el cuadro (más aire); bajarlo la SUBE (menos aire).
+    // Hasta el 11 nov 2026 estaba al revés: con 36 % pedía "sube" y Dalí se salía del cuadro.
+    if(aire<al)res.aire={ok:false,msg:`${aire.toFixed(0)} %: tu cabeza toca arriba, sube un poco el celular`};
+    else if(aire>ah)res.aire={ok:false,msg:`${aire.toFixed(0)} %: sobra espacio arriba, baja un poco el celular o inclínalo hacia abajo`};
     else res.aire={ok:true,msg:`${aire.toFixed(0)} % de aire ✓`};
   }
   if(a.luma<70)res.luz={ok:false,msg:"Falta luz: acércate a la ventana"};
