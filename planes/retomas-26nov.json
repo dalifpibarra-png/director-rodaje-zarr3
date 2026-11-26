@@ -1,0 +1,66 @@
+{
+ "titulo": "Retomas 26 nov · 4 frases",
+ "nota": "Misma playera oscura, mismo lugar, ventana de frente, celular a la altura de los ojos. 1 s callado antes y después, 2 tomas de cada una. Son 4 tomas, unos 5 minutos.",
+ "tomas": [
+  {
+   "acto": "esfuerzo",
+   "lugar": "GNP 1 · Ricos",
+   "accion": "Niega con la cabeza en «Mito» y señala a la lente en «tú y yo».",
+   "encuadre": "cerrado",
+   "aire": [
+    5,
+    14
+   ],
+   "dice": "Mito. El rico puede pagar el hospital de su bolsa. Tú y yo, no. Para eso existe el seguro.",
+   "luz": "frente",
+   "dur": 8,
+   "sentir": "Firme",
+   "tip": "Di «el HOSPITAL de su bolsa», no «el seguro». «Mito» fuerte y seco."
+  },
+  {
+   "acto": "problema",
+   "lugar": "GNP 6 · Choque",
+   "accion": "Manos arriba, como si acabaras de chocar.",
+   "encuadre": "medio",
+   "aire": [
+    8,
+    18
+   ],
+   "dice": "¿Chocaste? Guarda este video, te va a salvar.",
+   "luz": "frente",
+   "dur": 4,
+   "sentir": "Urgente",
+   "tip": "Esta no quedó grabada ayer."
+  },
+  {
+   "acto": "logro",
+   "lugar": "GNP 5 · Impuestos",
+   "accion": "Asiente.",
+   "encuadre": "medio",
+   "aire": [
+    8,
+    18
+   ],
+   "dice": "Comenta SAT y te digo cuánto puedes deducir.",
+   "luz": "frente",
+   "dur": 5,
+   "sentir": "Cercano",
+   "tip": "Marca bien la S: «Comenta SAT». Se oía «Comentas ad»."
+  },
+  {
+   "acto": "esfuerzo",
+   "lugar": "Kauri 2 · Semana Santa",
+   "accion": "Como si dieras un aviso.",
+   "encuadre": "medio",
+   "aire": [
+    8,
+    18
+   ],
+   "dice": "Semana Santa 2027 ya se está apartando. Casa completa para 8, con alberca climatizada.",
+   "luz": "frente",
+   "dur": 6,
+   "sentir": "Aviso",
+   "tip": "«Ya SE ESTÁ APARTANDO», no «ya está apartado» (suena a que ya no hay lugar)."
+  }
+ ]
+}
